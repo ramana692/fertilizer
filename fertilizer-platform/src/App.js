@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
 import { FaShoppingCart, FaHeart, FaUser, FaBox } from 'react-icons/fa';
-'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css';
 import './style.css';
 import Login from './components/Login';
 import Register from './components/Register';
