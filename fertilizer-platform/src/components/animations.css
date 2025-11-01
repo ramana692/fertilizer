@@ -1,0 +1,42 @@
+.button-pulse {
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn.cart:active,
+.btn.buy:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+}
+
+.cart-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.cart-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.cart-exit {
+  opacity: 1;
+}
+
+.cart-exit-active {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 300ms, transform 300ms;
+}

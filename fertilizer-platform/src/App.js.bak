@@ -1,0 +1,262 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './style.css';
+import Login from './components/Login';
+import Profile from './components/Profile';
+import Wishlist from './components/Wishlist';
+import ReviewList from './components/ReviewList';
+import ReviewForm from './components/ReviewForm';
+
+// Protected Route Component
+const ProtectedRoute = ({ children, isLoggedIn }) => {
+  const location = useLocation();
+  
+  if (!isLoggedIn) {
+    // Redirect to login with the current location they were trying to access
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  
+  return children;
+};
+
+// Main App Component
+const AppContent = ({ isLoggedIn, onLogin, username }) => {
+  const [products, setProducts] = useState([]);
+  const [query, setQuery] = useState('');
+  const [cartCount, setCartCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  const location = useLocation();
+
+  // Set up axios defaults
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // Add response interceptor to handle 401 Unauthorized
+    const interceptor = axios.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response && error.response.status === 401) {
+          // If 401, clear token and redirect to login
+          localStorage.removeItem('token');
+          delete axios.defaults.headers.common['Authorization'];
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+    );
+    
+    return () => {
+      // Clean up interceptor
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, []);
+  
+  // Fetch products if on home page
+  useEffect(() => {
+    if (location.pathname === '/' && isLoggedIn) {
+      fetchProducts();
+    }
+  }, [isLoggedIn, location.pathname]);
+  
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE}/api/products`);
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast.error('Failed to load products');
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filtered = products.filter((p) =>
+    p.name.toLowerCase().includes(query.trim().toLowerCase())
+  );
+
+  const createCartAnimation = (event) => {
+    const cart = document.querySelector('.cart');
+    const button = event.target;
+    const buttonRect = button.getBoundingClientRect();
+    const cartRect = cart.getBoundingClientRect();
+
+    const animation = document.createElement('div');
+    animation.className = 'cart-animation';
+    animation.innerHTML = '🛒';
+    animation.style.left = `${buttonRect.left}px`;
+    animation.style.top = `${buttonRect.top}px`;
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      setLoading(true);
+      fetch(`${API_BASE}/api/products`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch products");
+        return res.json();
+      })
+      .then((data) => setProducts(data))
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setProducts([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = products.filter((p) =>
+    p.name.toLowerCase().includes(query.trim().toLowerCase())
+  );
+
+  const handleLogin = (user) => {
+    setIsLoggedIn(true);
+    setUsername(user);
+  };
+
+  const createCartAnimation = (event) => {
+    const cart = document.querySelector('.cart');
+    const button = event.target;
+    const buttonRect = button.getBoundingClientRect();
+    const cartRect = cart.getBoundingClientRect();
+
+    const animation = document.createElement('div');
+    animation.className = 'cart-animation';
+    animation.innerHTML = '🛒';
+    animation.style.left = `${buttonRect.left}px`;
+    animation.style.top = `${buttonRect.top}px`;
+
+    document.body.appendChild(animation);
+
+    // Calculate the translation
+    const translateX = cartRect.left - buttonRect.left;
+    const translateY = cartRect.top - buttonRect.top;
+
+    animation.style.transform = `translate(${translateX}px, ${translateY}px)`;
+
+    setTimeout(() => {
+      document.body.removeChild(animation);
+    }, 1000);
+  };
+
+  // Don't render anything if not on a protected route and not logged in
+  if (!isLoggedIn && location.pathname !== '/login') {
+    return null;
+  }
+
+  return (
+    <div className="site">
+      <header className="site-header">
+        <div className="brand">
+          <h1>AgriNova</h1>
+          <small>Fertilizer Platform</small>
+        </div>
+
+        <div className="header-controls">
+          <select className="lang">
+            <option>English</option>
+            <option>Telugu</option>
+            <option>Hindi</option>
+          </select>
+
+          <div className="cart">🛒 ({cartCount})</div>
+          <Profile 
+            username={username} 
+            cartCount={cartCount} 
+            onSignOut={() => setIsLoggedIn(false)} 
+          />
+        </div>
+      </header>
+
+      <section className="search-area">
+        <div className="search-container">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search fertilizers..."
+          />
+          <button 
+            className="search-button"
+            onClick={(e) => {
+              e.target.classList.add('search-pulse');
+              setTimeout(() => {
+                e.target.classList.remove('search-pulse');
+              }, 500);
+            }}
+          >
+            🔍 Search
+          </button>
+        </div>
+                </div>
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/wishlist" 
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <Wishlist />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/products/:productId" 
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <ProductDetail />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <Profile />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/login" 
+            element={
+              isLoggedIn ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Login onLogin={onLogin} />
+              )
+            } 
+          />
+          
+          <Route 
+            path="*" 
+            element={
+              <div className="text-center py-12">
+                <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
+                <p className="text-lg text-gray-600 mb-6">Page not found</p>
+                <Link 
+                  to="/" 
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                >
+                  Go back home
+                </Link>
+                  >
+                    Buy Now
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+      </main>
+
+      <footer className="site-footer">© {new Date().getFullYear()} AgriNova</footer>
+    </div>
+  );
+}
