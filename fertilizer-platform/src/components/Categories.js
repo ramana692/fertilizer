@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaLeaf, FaSeedling } from 'react-icons/fa';
+import { FaLeaf } from 'react-icons/fa';
 
 const Categories = () => {
   const navigate = useNavigate();

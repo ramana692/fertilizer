@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
 import { FaShoppingCart, FaHeart, FaUser, FaBox } from 'react-icons/fa';
-import 'react-toastify/dist/ReactToastify.css';
+'react-toastify/dist/ReactToastify.css';
 import './style.css';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -20,10 +20,8 @@ import ProductDetail from './components/ProductDetail';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, isLoggedIn }) => {
-  const location = useLocation();
-  
   if (!isLoggedIn) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" replace />;
   }
   
   return children;
@@ -35,7 +33,6 @@ const App = () => {
   const [username, setUsername] = useState('');
   const [cartCount, setCartCount] = useState(0);
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-  const location = useLocation();
 
   // Check for existing session on initial load
   useEffect(() => {
