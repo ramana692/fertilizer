@@ -13,29 +13,29 @@ const Cart = () => {
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
-
-  const fetchCart = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
+    const fetchCart = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+  
+        const response = await axios.get(`${API_BASE}/api/cart`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
+        setCartItems(response.data.items || []);
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+        toast.error('Failed to load cart');
+      } finally {
         setLoading(false);
-        return;
       }
+    };
 
-      const response = await axios.get(`${API_BASE}/api/cart`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      setCartItems(response.data.items || []);
-    } catch (error) {
-      console.error('Error fetching cart:', error);
-      toast.error('Failed to load cart');
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchCart();
+  }, [API_BASE]);
 
   const updateQuantity = async (productId, newQuantity) => {
     if (newQuantity < 1) return;

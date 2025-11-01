@@ -19,16 +19,7 @@ const Home = () => {
 
   const categories = ['all', 'organic', 'chemical', 'npk', 'micronutrients', 'specialty'];
 
-  useEffect(() => {
-    fetchProducts();
-    fetchWishlist();
-  }, []);
-
-  useEffect(() => {
-    filterAndSortProducts();
-  }, [products, searchQuery, selectedCategory, priceRange, sortBy]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE}/api/products`);
       setProducts(response.data);
@@ -38,9 +29,9 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE]);
 
-  const fetchWishlist = async () => {
+  const fetchWishlist = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -52,9 +43,14 @@ const Home = () => {
     } catch (error) {
       console.error('Error fetching wishlist:', error);
     }
-  };
+  }, [API_BASE]);
 
-  const filterAndSortProducts = () => {
+  useEffect(() => {
+    fetchProducts();
+    fetchWishlist();
+  }, [fetchProducts, fetchWishlist]);
+
+  const filterAndSortProducts = useCallback(() => {
     let filtered = [...products];
 
     // Search filter
@@ -93,7 +89,11 @@ const Home = () => {
     });
 
     setFilteredProducts(filtered);
-  };
+  }, [products, searchQuery, selectedCategory, priceRange, sortBy]);
+
+  useEffect(() => {
+    filterAndSortProducts();
+  }, [products, searchQuery, selectedCategory, priceRange, sortBy, filterAndSortProducts]);
 
   const addToCart = async (productId) => {
     try {

@@ -11,11 +11,7 @@ const Orders = () => {
 
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -34,7 +30,11 @@ const Orders = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {

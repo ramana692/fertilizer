@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FaShoppingCart, FaHeart, FaRegHeart, FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
@@ -12,92 +12,94 @@ const CategoryProducts = () => {
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
   // Sample products for each category
-  const categoryProducts = {
-    paddy: [
-      {
-        id: 'paddy-1',
-        name: 'Paddy Anna (R) 4 (TFL)',
-        variety: 'R4',
-        price: 43.00,
-        image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
-        outOfStock: true
-      },
-      {
-        id: 'paddy-2',
-        name: 'Paddy ADT 37 (TFL) (1 Kg.)',
-        variety: 'ADT 37',
-        price: 43.00,
-        image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
-        outOfStock: true
-      },
-      {
-        id: 'paddy-3',
-        name: 'Paddy ASD 16 (TFL) (1 Kg...)',
-        variety: 'ASD 16',
-        price: 43.00,
-        image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
-        outOfStock: true
-      },
-      {
-        id: 'paddy-4',
-        name: 'Paddy TRY 3 (1 Kg.) – நெல்...',
-        variety: 'TRY 3',
-        price: 43.00,
-        image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
-        outOfStock: true
-      },
-      {
-        id: 'paddy-5',
-        name: 'Paddy CR 1002 (TFL) (1 Kg.)',
-        variety: 'CR 1002',
-        price: 43.00,
-        image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
-        outOfStock: true
-      },
-      {
-        id: 'paddy-6',
-        name: 'Paddy CO 51 (TFL) (1 Kg.)',
-        variety: 'CO 51',
-        price: 43.00,
-        image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
-        outOfStock: true
-      },
-      {
-        id: 'paddy-7',
-        name: 'Paddy TPS 5 (TFL) (1 Kg.)',
-        variety: 'TPS 5',
-        price: 43.00,
-        image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
-        outOfStock: true
-      },
-      {
-        id: 'paddy-8',
-        name: 'Paddy TRY 1 (TFL) (1 Kg.)',
-        variety: 'TRY 1',
-        price: 43.00,
-        image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
-        outOfStock: true
-      }
-    ],
-    maize: [
-      {
-        id: 'maize-1',
-        name: 'Maize Hybrid 900M Gold',
-        variety: '900M',
-        price: 250.00,
-        image: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=400',
-        outOfStock: false
-      },
-      {
-        id: 'maize-2',
-        name: 'Maize Super 3501',
-        variety: '3501',
-        price: 280.00,
-        image: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=400',
-        outOfStock: true
-      }
-    ]
-  };
+  const categoryProducts = useCallback(() => {
+    return {
+      paddy: [
+        {
+          id: 'paddy-1',
+          name: 'Paddy Anna (R) 4 (TFL)',
+          variety: 'R4',
+          price: 43.00,
+          image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
+          outOfStock: true
+        },
+        {
+          id: 'paddy-2',
+          name: 'Paddy ADT 37 (TFL) (1 Kg.)',
+          variety: 'ADT 37',
+          price: 43.00,
+          image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
+          outOfStock: true
+        },
+        {
+          id: 'paddy-3',
+          name: 'Paddy ASD 16 (TFL) (1 Kg...)',
+          variety: 'ASD 16',
+          price: 43.00,
+          image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
+          outOfStock: true
+        },
+        {
+          id: 'paddy-4',
+          name: 'Paddy TRY 3 (1 Kg.) – நெல்...',
+          variety: 'TRY 3',
+          price: 43.00,
+          image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
+          outOfStock: true
+        },
+        {
+          id: 'paddy-5',
+          name: 'Paddy CR 1002 (TFL) (1 Kg.)',
+          variety: 'CR 1002',
+          price: 43.00,
+          image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
+          outOfStock: true
+        },
+        {
+          id: 'paddy-6',
+          name: 'Paddy CO 51 (TFL) (1 Kg.)',
+          variety: 'CO 51',
+          price: 43.00,
+          image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
+          outOfStock: true
+        },
+        {
+          id: 'paddy-7',
+          name: 'Paddy TPS 5 (TFL) (1 Kg.)',
+          variety: 'TPS 5',
+          price: 43.00,
+          image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
+          outOfStock: true
+        },
+        {
+          id: 'paddy-8',
+          name: 'Paddy TRY 1 (TFL) (1 Kg.)',
+          variety: 'TRY 1',
+          price: 43.00,
+          image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400',
+          outOfStock: true
+        }
+      ],
+      maize: [
+        {
+          id: 'maize-1',
+          name: 'Maize Hybrid 900M Gold',
+          variety: '900M',
+          price: 250.00,
+          image: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=400',
+          outOfStock: false
+        },
+        {
+          id: 'maize-2',
+          name: 'Maize Super 3501',
+          variety: '3501',
+          price: 280.00,
+          image: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=400',
+          outOfStock: true
+        }
+      ]
+    };
+  }, []);
 
   const categoryNames = {
     paddy: 'Paddy - நெல்',
@@ -115,12 +117,12 @@ const CategoryProducts = () => {
     const loadProducts = () => {
       setLoading(true);
       setTimeout(() => {
-        setProducts(categoryProducts[categoryId] || []);
+        setProducts(categoryProducts()[categoryId] || []);
         setLoading(false);
       }, 500);
     };
     loadProducts();
-  }, [categoryId]);
+  }, [categoryId, categoryProducts]);
 
   const addToCart = async (productId) => {
     try {

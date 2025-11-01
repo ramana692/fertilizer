@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FaHeart, FaRegHeart, FaShoppingCart, FaTrash, FaCheck } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FaRegHeart, FaShoppingCart, FaTrash, FaCheck } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -12,12 +12,7 @@ const Wishlist = () => {
   const [cartItems, setCartItems] = useState([]);
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
-  useEffect(() => {
-    fetchWishlist();
-    fetchCartItems();
-  }, []);
-
-  const fetchWishlist = async () => {
+  const fetchWishlist = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -36,9 +31,9 @@ const Wishlist = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE]);
 
-  const fetchCartItems = async () => {
+  const fetchCartItems = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -51,7 +46,12 @@ const Wishlist = () => {
     } catch (error) {
       console.error('Error fetching cart items:', error);
     }
-  };
+  }, [API_BASE]);
+
+  useEffect(() => {
+    fetchWishlist();
+    fetchCartItems();
+  }, [fetchWishlist, fetchCartItems]);
 
   const removeFromWishlist = async (productId) => {
     if (updating) return;

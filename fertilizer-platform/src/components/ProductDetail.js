@@ -14,9 +14,21 @@ const ProductDetail = () => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-  const currentUser = (() => {
-    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
-  })();
+
+  const checkWishlist = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await axios.get(`${API_BASE}/api/wishlist`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const wishlistItems = response.data.data || [];
+      setIsInWishlist(wishlistItems.some(item => item._id === productId));
+    } catch (error) {
+      console.error('Error checking wishlist:', error);
+    }
+  }, [API_BASE, productId]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -33,22 +45,7 @@ const ProductDetail = () => {
     };
 
     fetchProduct();
-  }, [productId, API_BASE]);
-
-  const checkWishlist = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      const response = await axios.get(`${API_BASE}/api/wishlist`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const wishlistItems = response.data.data || [];
-      setIsInWishlist(wishlistItems.some(item => item._id === productId));
-    } catch (error) {
-      console.error('Error checking wishlist:', error);
-    }
-  };
+  }, [productId, API_BASE, checkWishlist]);
 
   const toggleWishlist = async () => {
     try {
@@ -206,13 +203,13 @@ const ProductDetail = () => {
                   <FaStar
                     key={i}
                     className={`h-5 w-5 ${
-                        i < ((product.averageRating ?? product.rating ?? 4)) ? 'text-yellow-400' : 'text-gray-300'
+                      i < (product.rating || 4) ? 'text-yellow-400' : 'text-gray-300'
                     }`}
                   />
                 ))}
               </div>
               <span className="ml-3 text-gray-600 font-medium">
-                  {(product.averageRating ?? product.rating ?? 4).toFixed(1)} ({product.reviewCount || 0} reviews)
+                {product.rating || 4}.0 ({product.reviewCount || 0} reviews)
               </span>
             </div>
 
@@ -360,10 +357,10 @@ const ProductDetail = () => {
             ) : (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
-                <ReviewList productId={productId} currentUser={currentUser} />
+                <ReviewList productId={productId} />
                 <div className="mt-8">
                   <h3 className="text-xl font-bold text-gray-900 mb-4">Write a Review</h3>
-                  <ReviewForm productId={productId} currentUser={currentUser} />
+                  <ReviewForm productId={productId} />
                 </div>
               </div>
             )}

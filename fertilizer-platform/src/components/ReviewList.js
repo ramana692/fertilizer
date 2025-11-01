@@ -9,13 +9,7 @@ const ReviewList = ({ productId, currentUser }) => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [likedReviews, setLikedReviews] = useState({});
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-  // Derive current user from localStorage if not provided
-  const storedUser = (() => {
-    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
-  })();
-  const effectiveUser = currentUser || storedUser;
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -36,37 +30,30 @@ const ReviewList = ({ productId, currentUser }) => {
     };
 
     fetchReviews();
-  }, [productId, page]);
+  }, [productId, page, API_BASE]);
 
   const handleLike = async (reviewId) => {
-    if (!effectiveUser) {
+    if (!currentUser) {
       toast.info('Please login to like reviews');
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`${API_BASE}/api/reviews/${reviewId}/like`, null, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+      await axios.put(`/api/reviews/${reviewId}/like`);
       
       setReviews(reviews.map(review => {
         if (review._id === reviewId) {
-          const isLiked = review.likes.map(id => id.toString()).includes(effectiveUser.id);
+          const isLiked = review.likes.includes(currentUser.id);
           return {
             ...review,
             likes: isLiked 
-              ? review.likes.filter(id => id.toString() !== effectiveUser.id)
-              : [...review.likes, effectiveUser.id]
+              ? review.likes.filter(id => id !== currentUser.id)
+              : [...review.likes, currentUser.id]
           };
         }
         return review;
       }));
 
-      setLikedReviews(prev => ({
-        ...prev,
-        [reviewId]: !prev[reviewId]
-      }));
     } catch (error) {
       console.error('Error liking review:', error);
       toast.error('Failed to like review');
@@ -94,7 +81,7 @@ const ReviewList = ({ productId, currentUser }) => {
                 <div className="flex-shrink-0">
                   {review.user?.avatar ? (
                     <img 
-                      src={`${API_BASE}/uploads/${review.user.avatar}`} 
+                      src={`/uploads/${review.user.avatar}`} 
                       alt={review.user.name}
                       className="h-10 w-10 rounded-full object-cover"
                     />
@@ -129,7 +116,7 @@ const ReviewList = ({ productId, currentUser }) => {
                       onClick={() => handleLike(review._id)}
                       className="flex items-center text-sm text-gray-500 hover:text-blue-500"
                     >
-                      {review.likes?.map(id => id.toString()).includes(effectiveUser?.id) ? (
+                      {review.likes?.includes(currentUser?.id) ? (
                         <FaThumbsUp className="text-blue-500 mr-1" />
                       ) : (
                         <FaRegThumbsUp className="mr-1" />
@@ -146,10 +133,10 @@ const ReviewList = ({ productId, currentUser }) => {
                       {review.images.map((image, idx) => (
                         <img 
                           key={idx} 
-                          src={`${API_BASE}/uploads/reviews/${image}`} 
+                          src={`/uploads/reviews/${image}`} 
                           alt={`Review ${idx + 1}`}
                           className="h-16 w-16 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-80"
-                          onClick={() => window.open(`${API_BASE}/uploads/reviews/${image}`, '_blank')}
+                          onClick={() => window.open(`/uploads/reviews/${image}`, '_blank')}
                         />
                       ))}
                     </div>
