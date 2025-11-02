@@ -5,3 +5,4 @@
 
 [build.environment]
   CI = "false"
+  REACT_APP_API_URL = "https://fertilizer-c92p.onrender.com"
