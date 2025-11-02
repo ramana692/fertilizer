@@ -20,9 +20,32 @@ const Home = () => {
   const categories = ['all', 'organic', 'chemical', 'npk', 'micronutrients', 'specialty'];
 
   const fetchProducts = useCallback(async () => {
+    // Helper: sleep
+    const wait = (ms) => new Promise((res) => setTimeout(res, ms));
+    const attempts = [0, 1500, 3000, 5000];
+
     try {
-      const response = await axios.get(`${API_BASE}/api/products`);
-      setProducts(response.data);
+      // Warm up Render free instance (no-op if already awake)
+      try { await axios.get(`${API_BASE}/`, { timeout: 4000 }); } catch (_) {}
+
+      let lastErr;
+      for (let i = 0; i < attempts.length; i++) {
+        if (attempts[i] > 0) await wait(attempts[i]);
+        try {
+          const response = await axios.get(`${API_BASE}/api/products`, { timeout: 8000 });
+          setProducts(response.data);
+          lastErr = undefined;
+          break;
+        } catch (err) {
+          lastErr = err;
+          // Try next attempt
+        }
+      }
+
+      if (lastErr) {
+        console.error('Error fetching products after retries:', lastErr?.message || lastErr);
+        toast.error('Failed to load products');
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
       toast.error('Failed to load products');
