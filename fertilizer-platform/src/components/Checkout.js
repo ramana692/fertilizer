@@ -30,7 +30,7 @@ const Checkout = () => {
     cvv: ''
   });
 
-  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  const API_BASE = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? 'https://fertilizer-c92p.onrender.com' : 'http://localhost:5001');
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -70,20 +70,7 @@ const Checkout = () => {
     }
   };
 
-  const fetchCart = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE}/api/cart`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setCartItems(response.data.items || []);
-    } catch (error) {
-      console.error('Error fetching cart:', error);
-      toast.error('Failed to load cart');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Removed duplicate fetchCart function (handled inside useEffect)
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0);

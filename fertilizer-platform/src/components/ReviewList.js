@@ -9,7 +9,7 @@ const ReviewList = ({ productId, currentUser }) => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  const API_BASE = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? 'https://fertilizer-c92p.onrender.com' : 'http://localhost:5001');
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -39,7 +39,7 @@ const ReviewList = ({ productId, currentUser }) => {
     }
 
     try {
-      await axios.put(`/api/reviews/${reviewId}/like`);
+      await axios.put(`${API_BASE}/api/reviews/${reviewId}/like`);
       
       setReviews(reviews.map(review => {
         if (review._id === reviewId) {
@@ -81,7 +81,7 @@ const ReviewList = ({ productId, currentUser }) => {
                 <div className="flex-shrink-0">
                   {review.user?.avatar ? (
                     <img 
-                      src={`/uploads/${review.user.avatar}`} 
+                      src={`${API_BASE}/uploads/${review.user.avatar}`} 
                       alt={review.user.name}
                       className="h-10 w-10 rounded-full object-cover"
                     />
@@ -133,10 +133,10 @@ const ReviewList = ({ productId, currentUser }) => {
                       {review.images.map((image, idx) => (
                         <img 
                           key={idx} 
-                          src={`/uploads/reviews/${image}`} 
+                          src={`${API_BASE}/uploads/reviews/${image}`} 
                           alt={`Review ${idx + 1}`}
                           className="h-16 w-16 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-80"
-                          onClick={() => window.open(`/uploads/reviews/${image}`, '_blank')}
+                          onClick={() => window.open(`${API_BASE}/uploads/reviews/${image}`, '_blank')}
                         />
                       ))}
                     </div>

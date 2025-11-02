@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const ReviewForm = ({ productId, onReviewSubmit, currentUser }) => {
+  const API_BASE = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? 'https://fertilizer-c92p.onrender.com' : 'http://localhost:5001');
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [title, setTitle] = useState('');
@@ -17,7 +18,7 @@ const ReviewForm = ({ productId, onReviewSubmit, currentUser }) => {
     // Check if user has purchased the product
     const checkPurchase = async () => {
       try {
-        const response = await axios.get(`/api/orders/check-purchase/${productId}`, {
+        const response = await axios.get(`${API_BASE}/api/orders/check-purchase/${productId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         setHasPurchased(response.data.hasPurchased);
@@ -29,7 +30,7 @@ const ReviewForm = ({ productId, onReviewSubmit, currentUser }) => {
     if (currentUser) {
       checkPurchase();
     }
-  }, [productId, currentUser]);
+  }, [productId, currentUser, API_BASE]);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -106,7 +107,7 @@ const ReviewForm = ({ productId, onReviewSubmit, currentUser }) => {
         formData.append('images', image);
       });
       
-      const response = await axios.post('/api/reviews', formData, {
+      const response = await axios.post(`${API_BASE}/api/reviews`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('token')}`

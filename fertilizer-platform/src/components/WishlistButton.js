@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const WishlistButton = ({ productId, size = 'md', showText = false, onToggle = null }) => {
+  const API_BASE = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? 'https://fertilizer-c92p.onrender.com' : 'http://localhost:5001');
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -34,7 +35,7 @@ const WishlistButton = ({ productId, size = 'md', showText = false, onToggle = n
       }
 
       try {
-        const response = await axios.get(`/api/wishlist/check/${productId}`, {
+        const response = await axios.get(`${API_BASE}/api/wishlist/check/${productId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -67,7 +68,7 @@ const WishlistButton = ({ productId, size = 'md', showText = false, onToggle = n
     try {
       if (isInWishlist) {
         // Remove from wishlist
-        await axios.delete(`/api/wishlist/${productId}`, {
+        await axios.delete(`${API_BASE}/api/wishlist/${productId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -78,7 +79,7 @@ const WishlistButton = ({ productId, size = 'md', showText = false, onToggle = n
       } else {
         // Add to wishlist
         await axios.post(
-          `/api/wishlist/${productId}`, 
+          `${API_BASE}/api/wishlist/${productId}`, 
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
